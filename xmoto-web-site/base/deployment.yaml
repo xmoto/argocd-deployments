@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: xmoto-web-site
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: xmoto-web-site
+
+  template:
+    metadata:
+      labels:
+        app: xmoto-web-site
+
+    spec:
+      imagePullSecrets:
+        - name: ghcr-token
+
+      containers:
+        - name: app
+          image: ghcr.io/xmoto/xmoto-web-site
+          envFrom:
+            - configMapRef:
+                name: config
+            - secretRef:
+                name: xmoto-web-site-secrets

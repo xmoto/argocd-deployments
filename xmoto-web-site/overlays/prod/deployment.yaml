@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: xmoto-web-site
+
+spec:
+  replicas: 2

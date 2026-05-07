@@ -1,0 +1,20 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  name: xmoto-web-site-route-staging
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+
+spec:
+  parentRefs:
+    - name: main
+      namespace: gateway
+
+  hostnames:
+    - v2-staging.xmoto.org
+
+  rules:
+    - backendRefs:
+      - name: xmoto-web-site
+        port: 80

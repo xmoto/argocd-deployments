@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+- route.yaml
+- www-redirect.yaml
+
+namespace: prod
+
+patches:
+- path: deployment.yaml
+  target:
+    kind: Deployment
+    name: xmoto-web-site
+
+generators:
+- ./secret-generator.yaml
+
+configMapGenerator:
+- envs:
+  - config.env
+  name: config
+  options:
+    annotations:
+      argocd.argoproj.io/hook: PreSync
+      argocd.argoproj.io/sync-wave: "-2"
+
+images:
+- name: ghcr.io/xmoto/xmoto-web-site
+  newName: ghcr.io/xmoto/xmoto-web-site
+  newTag: 6a513a89fd36b2151363fd149e3f449cc8be2119
