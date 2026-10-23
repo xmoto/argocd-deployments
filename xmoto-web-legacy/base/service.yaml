@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: xmoto-web-legacy
+
+spec:
+  selector:
+    app: xmoto-web-legacy
+
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP

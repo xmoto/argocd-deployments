@@ -1,0 +1,25 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  name: xmoto-web-legacy-route-prod
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+
+spec:
+  parentRefs:
+    - name: main
+      namespace: gateway
+
+  hostnames:
+    - legacy.xmoto.org
+    - download-legacy.xmoto.org
+
+  rules:
+    - backendRefs:
+        - name: xmoto-web-legacy
+          port: 80
+      # Some admin actions (e.g. rebuilding feeds) run longer than Envoy's 15s default.
+      # 100s is Cloudflare's limit for proxied requests.
+      timeouts:
+        request: 100s

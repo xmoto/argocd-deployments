@@ -1,0 +1,39 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+
+metadata:
+  name: xmoto-web-legacy-db
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+
+spec:
+  image: docker.io/library/mariadb:12.3.3
+
+  rootPasswordSecretKeyRef:
+    name: xmoto-web-legacy-db-root
+    key: password
+    generate: true
+
+  database: xmoto_website
+  username: xmoto
+  passwordSecretKeyRef:
+    name: xmoto-web-legacy-db-user
+    key: password
+    generate: true
+
+  storage:
+    size: 20Gi
+
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    default_storage_engine=InnoDB
+    max_allowed_packet=256M
+    innodb_buffer_pool_size=256M
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi

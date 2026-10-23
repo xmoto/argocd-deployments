@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: xmoto-web-legacy
+
+spec:
+  replicas: 1
+
+  # The data volumes are ReadWriteOnce, so the old pod has to release them
+  # before the new one starts
+  strategy:
+    type: Recreate
+
+  selector:
+    matchLabels:
+      app: xmoto-web-legacy
+
+  template:
+    metadata:
+      labels:
+        app: xmoto-web-legacy
+
+    spec:
+      imagePullSecrets:
+        - name: ghcr-token
+
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 33
+        runAsGroup: 33
+        fsGroup: 33
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: web
+          image: ghcr.io/xmoto/xmoto-web-legacy-web
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: config
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: site-data
+              mountPath: /var/www/site-data
+              readOnly: true
+            - name: repository
+              mountPath: /var/www/repository
+              readOnly: true
+            - name: web-tmp
+              mountPath: /tmp
+
+        - name: php
+          image: ghcr.io/xmoto/xmoto-web-legacy-php
+          envFrom:
+            - configMapRef:
+                name: config
+            - secretRef:
+                name: xmoto-web-legacy-secrets
+          env:
+            - name: XMOTO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: xmoto-web-legacy-db-user
+                  key: password
+          readinessProbe:
+            exec:
+              command: [php-fpm-ping]
+          livenessProbe:
+            exec:
+              command: [php-fpm-ping]
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: site-data
+              mountPath: /var/www/site-data
+            - name: repository
+              mountPath: /var/www/repository
+            - name: php-tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: site-data
+          persistentVolumeClaim:
+            claimName: xmoto-web-legacy-site-data
+        - name: repository
+          persistentVolumeClaim:
+            claimName: xmoto-web-legacy-repository
+        - name: web-tmp
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: php-tmp
+          emptyDir:
+            sizeLimit: 1Gi

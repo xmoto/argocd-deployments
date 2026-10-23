@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: xmoto-web-legacy-site-data
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: xmoto-web-legacy-repository
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi

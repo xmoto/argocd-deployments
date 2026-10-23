@@ -1,0 +1,10 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - volumes.yaml
+  - mariadb.yaml
+
+labels:
+  - includeSelectors: true
+    pairs:
+      app: xmoto-web-legacy
