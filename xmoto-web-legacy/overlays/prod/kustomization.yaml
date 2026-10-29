@@ -22,7 +22,7 @@ configMapGenerator:
 images:
 - name: ghcr.io/xmoto/xmoto-web-legacy-php
   newName: ghcr.io/xmoto/xmoto-web-legacy-php
-  newTag: fb911fa5af46dc478598116a6d9bb457572fb7a7
+  newTag: 58a4b7ba6c1cca116daac680b3d7e1df54288e86
 - name: ghcr.io/xmoto/xmoto-web-legacy-web
   newName: ghcr.io/xmoto/xmoto-web-legacy-web
-  newTag: fb911fa5af46dc478598116a6d9bb457572fb7a7
+  newTag: 58a4b7ba6c1cca116daac680b3d7e1df54288e86
